@@ -2,7 +2,14 @@ CREATE TABLE student (
     student_id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(20),
     major VARCHAR(20)
-    
+ 
+-- Dados podem ser: 
+-- INT
+-- DECIMAL (10,4) representando 10,4 
+-- VARCHAR(100) STRING DE 100 CARACTERES
+-- DATE yyyy-mm-dd
+-- TIMESTAMP yyyy-mm-dd hh:mm:ss
+-- BLOB   
     -- PRIMARY KEY pode vir ja na declaracao da variavel
     -- AUTO_INCREMENT deixa uma variavel incrementando sozinha. Util pra quando eh um ID, por exemplo
 );
