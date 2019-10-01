@@ -176,6 +176,60 @@ WHERE employee.emp_id IN (
 -- ON DELETE CASCATE deleta a linha quando o que ta conectado a ela eh deletado
 -- On DELETE SET NULL bota null quando uma chave estrangeira referencia algo que foi deletado 
 
+-- Triggers
+-- DELIMITER muda quem eh o delimitador. Normalmente é ";"
+
+-- Sempre que algum valor for inserido na tabela employee
+-- o trigger ira adicionar 'added new employee' na tabela trigger_test
+DELIMITER $$
+CREATE 
+    TRIGGER my_trigger BEFORE INSERT
+    ON employee
+    FROM EACH ROW BEGIN
+        INSERT INTO trigger_test VALUES( 'added new employee' );
+    END$$
+DELIMITER ; 
+
+-- Sempre que algum valor for inserido na tabela employee
+-- o trigger ira adicionar o first_name dessa nova instancia na tabela trigger_test
+DELIMITER $$
+CREATE
+    TRIGGER my_trigger1 BEFORE INSERT
+    ON employee
+    FROM EACH ROW BEGIN
+        INSERT INTO trigger_test VALUES( NEW.first_name );
+    END$$
+DELIMITER ;
+
+-- Sempre que algum valor for inserido na tabela employee
+-- o trigger ira adicionar na tabela trigger_test uma string a depender do sexo da nova instancia
+DELIMITER $$
+CREATE
+    TRIGGER my_trigger3 BEFORE INSERT
+    ON employee
+    FROM EACH ROW BEGIN
+        IF NEW.sex = 'M' THEN
+            INSERT INTO trigger_test VALUES( 'added new male employee' );
+        ELSEIF NEW.sex = 'F' THEN
+            INSERT INTO trigger_test VALUES( 'added female' );
+        ELSE
+            INSERT INTO trigger_test VALUES( 'added other employee' );
+        END IF;
+    END$$
+DELIMITER ;
+
+
+-- Triggers tambem podem ser
+-- BEFORE UPDATE
+-- BEFORE DELETE
+-- AFTER UPDATE
+-- AFTER INSERT
+-- AFTER DELETE
+-- DROP TRIGGER my_trigger dropa o trigger my_trigger
+
+
+
+
 
 
 
