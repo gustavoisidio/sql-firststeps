@@ -299,9 +299,70 @@ WHERE a.codigo_projeto = p.codigo AND p.valor > (SELECT AVG(p.valor)
 
 
 -- Q4 
-SELECT p.codigo
-FROM projeto p
-WHERE p.valor > 8000;
+SELECT P.codigo_projeto, COUNT(P.cpf)
+FROM participa P, projeto Pr
+WHERE P.codigo_projeto = Pr.codigo AND Pr.valor > 8000 AND (SELECT COUNT(P.cpf) FROM participa P) > (SELECT COUNT(DISTINCT cpf_lider) FROM empregado)
+GROUP BY P.codigo_projeto;
+-- HAVING COUNT(P.cpf) > (SELECT COUNT(DISTINCT cpf_lider) FROM empregado);-- conta a quantidade de líderes
+
+-- Q8 
+
+-- Lista todos os chefes e salarios
+SELECT e.cpf, e.salario
+FROM empregado e, departamento c
+WHERE c.cpf_chefe = e.cpf;
+
+-- Maior salario de chefe
+SELECT Max(e.salario)
+FROM empregado e, departamento c
+WHERE c.cpf_chefe = e.cpf;
+
+-- Lista todos que não são chefes e salarios
+SELECT e.cpf, e.salario
+FROM empregado e, departamento c
+WHERE c.cpf_chefe <> e.cpf;
+
+
+SELECT e.cpf, e.salario
+FROM empregado e, departamento c
+WHERE c.cpf_chefe <> e.cpf AND e.salario > (
+                        SELECT Min(e.salario)
+                        FROM empregado e, departamento c
+                        WHERE c.cpf_chefe = e.cpf);
+
+-- Q9 
+
+DELIMITER $$
+CREATE 
+    TRIGGER q9trigger BEFORE INSERT
+    FROM EACH ROW BEGIN
+    ON empregado
+        IF NEW.dt_nasc - '02-OCT-19' > 60 AND NEW.salario <= 4000
+            RAISE_APPLICATION_ERROR(-20011, 'Salario muito baixo');
+        END IF;
+    END$$
+DELIMITER ;
+
+CREATE OR REPLACE TRIGGER salarioSenior
+    BEFORE INSERT OR UPDATE
+        FOR EACH ROW 
+            WHEN ((NEW.dt_nasc - SYSDATE)/360 > 60) BEGIN
+                IF :NEW.salario <= 4000
+                    RAISE_APPLICATION_ERROR(-20011, 'Salario baixo');
+                END IF;
+            END;
+
+SELECT * FROM empregado;
+
+-- Q13
+
+CREATE OR REPLACE TRIGGER q13trigger
+AFTER INSERT OR DELETE ON empregado
+
+
+
+
+
 
 
 
