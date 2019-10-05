@@ -115,7 +115,7 @@ CREATE TABLE trabalha (
 
 -- POVOAMENTO ---
 
- --inserindo Projetos (7 no total)
+--inserindo Projetos (7 no total)
 INSERT INTO Projeto (codigo, descricao, valor) VALUES (1, 'Projeto 1', 5000.00);
 INSERT INTO Projeto (codigo, descricao, valor) VALUES (2, 'Projeto 2', 9600.00);
 INSERT INTO Projeto (codigo, descricao, valor) VALUES (3, 'Projeto 3', 7500.00);
@@ -316,7 +316,7 @@ CREATE TABLE reducaoS (
 );
 
 CREATE OR REPLACE TRIGGER reducaoSalarial
-BEFORE UPDATE ON empregado
+AFTER UPDATE ON empregado
 FOR EACH ROW
 WHEN (NEW.salario < OLD.salario)
 BEGIN
@@ -333,13 +333,16 @@ CREATE TABLE aumentoMulheres (
 CREATE OR REPLACE TRIGGER aumentoFeminino
 AFTER UPDATE ON empregado
 FOR EACH ROW
-WHEN (NEW.sexo = 'F' AND NEW.salario > OLD.salario)
+WHEN (OLD.sexo = 'F' AND NEW.salario > OLD.salario)
 BEGIN
     INSERT INTO aumentoMulheres (cpf) VALUES(:NEW.cpf);
 END;
 
-UPDATE INTO empregado (cpf, cpf_lider, nome, dt_nasc, sexo, salario, cep) VALUES (3333, 1111, 'Josefa Paes', to_date ('23/11/1990', 'dd/mm/yyyy'), 'F', 4500.00, 133313);
-SELECT * FROM aumentoMulheres;
+UPDATE empregado
+SET salario = 100.00
+WHERE cpf = 3333;
+
+SELECT * FROM reducaoS;
 
 -- 23. Uso de WHERE + HAVING
 -- Agrupa os departamentos que tem mais de 3 pessoas, pelo codigo do departamento 
@@ -349,10 +352,16 @@ WHERE e.cpf = t.cpf
 GROUP BY t.codigo_depto
 HAVING COUNT(e.cpf) > 3;
 
+-- 40. Uso de GRANT
+GRANT INSERT, UPDATE, DELETE
+ON empregado 
+TO gisf;
+
+-- Triggers testes faltando 
+
 -- Ainda não concluidas
 
 -- 29. Junção usando FULL OUTER JOIN
--- 40. Uso de GRANT
 -- 91. INSTEAD OF TRIGGER
 
 
