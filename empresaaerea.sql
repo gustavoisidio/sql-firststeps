@@ -32,12 +32,7 @@ CREATE TABLE telefones(
     CONSTRAINT CPF_FK FOREIGN KEY (CPF) REFERENCES empregado(CPF) 
 );
 
-CREATE TABLE passageiro(
-    CPF NUMBER,
-    NOME VARCHAR2 (50),
-    SEXO CHAR (1),
-    CONSTRAINT CPF_PK PRIMARY KEY(CPF)
-);
+
 
 CREATE TABLE assento(
     ASSENTO VARCHAR2(10),
@@ -85,6 +80,13 @@ CREATE TABLE comissario(
 	CPF NUMBER,
 	CONSTRAINT COMISSARIO_FK FOREIGN KEY(CPF) REFERENCES empregado(CPF),
 	CONSTRAINT COMISSARIO_PK PRIMARY KEY(CPF)
+);
+
+CREATE TABLE passageiro(
+    CPF NUMBER,
+    NOME VARCHAR2 (50),
+    SEXO CHAR (1),
+    CONSTRAINT CPF_PK PRIMARY KEY(CPF)
 );
 
 CREATE TABLE voa(
@@ -245,6 +247,15 @@ INSERT INTO GRATIFICACAO (COD_GRATIFICACAO,DATA_GRAT,DESCRICAO) VALUES (5,TO_DAT
 INSERT INTO GRATIFICACAO (COD_GRATIFICACAO,DATA_GRAT,DESCRICAO) VALUES (6,TO_DATE('27/09/2016','DD/MM/YYYY'),'RECEBIDA PELO PILOTO');
 
 
+
+
+
+
+
+
+
+
+
 -- INSERINDO EM ASSENTO 1  A 5  PRIMEIRA CLASE 6  A 10 CLASSE EXECUTIV 11 A 15 CLASSE ECONOMICA
 INSERT INTO ASSENTO (ASSENTO, CLASSE) VALUES ('A1', 'PRIMEIRA CLASSE');
 INSERT INTO ASSENTO (ASSENTO, CLASSE) VALUES ('A2', 'PRIMEIRA CLASSE');
@@ -319,116 +330,3 @@ INSERT INTO PASSAGEMPASSAGEIRO(CPF,DATA_PASSAGEM,CPF_COMPRADOR,ASSENTO) VALUES (
 INSERT INTO PASSAGEMPASSAGEIRO(CPF,DATA_PASSAGEM,CPF_COMPRADOR,ASSENTO) VALUES (87705657406,TO_DATE('05/12/2011','DD/MM/YYYY'),9999999,'C2');
 INSERT INTO PASSAGEMPASSAGEIRO(CPF,DATA_PASSAGEM,CPF_COMPRADOR,ASSENTO) VALUES (71583979476,TO_DATE('05/05/2016','DD/MM/YYYY'),5555555,'A3');
 
-
--- 46 e 6 Uso de ORDER BY com mais de dois campos
--- Mostra o cpf, salario e numero da casa ordenando primeiramente pelo salario e, em caso de "empate", pelo número da casa
-SELECT e.CPF, e.salario, e.end_numero
-FROM empregado e
-WHERE e.salario > 1000
-ORDER BY e.salario, e.end_numero;
-
-select * from empregado;
-
--- 12. Criar FK Composta
-DROP TABLE telefonerg;
-CREATE TABLE telefonerg (
-    cpf NUMBER,
-    rg NUMBER,
-    telefone VARCHAR2(14),
-    CONSTRAINT telefonerg_pk PRIMARY KEY (rg),
-    CONSTRAINT telefonerg_FK1 FOREIGN KEY (cpf, telefone) REFERENCES telefones (cpf, telefone)
-);
-
-select * from telefonerg;
-
--- 74 e 80 AFTER TRIGGER e Uso de NEW e OLD em TRIGGER de atualização
--- Sempre que uma mulher receber um aumento, guarda cpf dela na tabela aumentoMulheres
-DROP TABLE aumento;
-CREATE TABLE aumento (
-    cpf NUMBER NOT NULL,
-    CONSTRAINT aumento_pk PRIMARY KEY (cpf)
-);
-
-CREATE OR REPLACE TRIGGER aumentoFeminino
-AFTER UPDATE ON empregado
-FOR EACH ROW
-WHEN (NEW.salario > OLD.salario)
-BEGIN
-    INSERT INTO aumento (cpf) VALUES(:NEW.cpf);
-END;
-
-select * from empregado;
-
-UPDATE empregado
-SET salario = 15000
-WHERE cpf = 3333;
-
-select * from aumento;
-
--- 23. Uso de WHERE + HAVING
--- Agrupa a quantidade de passageiros pelas datas de voos com algum passageiro
-SELECT t.data_voo, COUNT(t.pass_cpf) 
-FROM voa t, passageiro p
-WHERE p.cpf = t.pass_cpf
-GROUP BY t.data_voo;
-HAVING COUNT(t.pass_cpf) > 0;
-
--- 40. Uso de GRANT
--- Garante acesso a insert, update e delete para o usuário gisf
-GRANT INSERT, UPDATE, DELETE
-ON empregado 
-TO gisf;
-
--- 29. Junção usando FULL OUTER JOIN    
--- Todas as informações sobre viagem além do cpf de comissário
-select * from viagem full outer join comissario on viagem.comcpf = comissario.cpf;
-
---Questão 91 criação de uma view para ser usada no instead of trigger 
-create or replace view selecionaEmpregado as select * from empregado where cpf between 0 and 4444;
-
-select * from selecionaEmpregado;
-
-create table empregadoSelecionado 
-(
-    cpf number,
-    salario number,
-    constraint pk primary key (cpf)
-);
-
-create or replace trigger questao90
-instead of insert on selecionaEmpregado
-for each row
-begin
-    insert into empregadoSelecionado (cpf,salario) values (:new.cpf,:new.salario);  
-end;
-/
-
-insert into selecionaEmpregado (cpf,s_cpf,end_cep,end_numero,salario) values (1234,0,999,1050,20000);
-
-select * from selecionaEmpregado;
-
-select * from empregadoSelecionado;
-
--- 57. Recuperação de dados para registro
-declare
-tp_empregado empregado%rowtype;
-begin
-    select *
-    into tp_empregado
-    from empregado e
-    where e.cpf = 1111;
-    dbms_output.put_line('cpf '||tp_empregado.cpf||' salario: '||tp_empregado.salario);
-end;
-/
-
--- 54. WHILE LOOP
-declare 
-indice number := 1;
-begin
-    while indice < 3 
-    loop
-    dbms_output.put_line('indice: '||indice); 
-    indice := indice + 1;
-    end loop;
-end;
-/
